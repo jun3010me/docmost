@@ -1,0 +1,45 @@
+services:
+  docmost:
+    image: docmost/docmost:latest
+    depends_on:
+      - db
+      - redis
+    environment:
+      APP_URL: "http://ドメイン名を入れる(ローカルならlocalhost):3000"
+      APP_SECRET: "openssl rand -hex 32の結果を貼り付ける"
+      DATABASE_URL: "postgresql://docmost:STRONG_DB_PASSWORD@db:5432/docmost?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      MAIL_DRIVER: "smtp"
+      SMTP_HOST: "メールサーバーのホスト名"
+      SMTP_PORT: "587"
+      SMTP_USERNAME: "メールサーバー認証用のユーザー名"
+      SMTP_PASSWORD: "メールサーバー認証用のパスワード"
+      MAIL_FROM_ADDRESS: "差出人のメールアドレス"
+      MAIL_FROM_NAME: "Docmost"
+      SMTP_SECURE: "false"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - docmost:/app/data/storage
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: docmost
+      POSTGRES_USER: docmost
+      POSTGRES_PASSWORD: STRONG_DB_PASSWORD
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  docmost:
+  db_data:
+  redis_data:
